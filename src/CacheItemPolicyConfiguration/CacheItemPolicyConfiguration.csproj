@@ -42,6 +42,8 @@
     <Compile Include="CacheItemPolicyConfigurationItem.cs" />
     <Compile Include="CacheItemPolicyHelpers.cs" />
     <Compile Include="CacheItemPolicyDateTimeProvider.cs" />
+    <Compile Include="ConfigFile\CacheEntryConfigurationElement.cs" />
+    <Compile Include="ConfigFile\CacheEntryConfigurationElementCollection.cs" />
     <Compile Include="DefaultCacheItemPolicyDateTimeProvider.cs" />
     <Compile Include="IndexedCacheItemPolicyFactory.cs" />
     <Compile Include="ConfigFile\ConfigFileBasedCacheItemPolicyConfiguration.cs" />

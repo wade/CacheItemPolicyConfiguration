@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Caching;
 using CacheItemPolicyConfiguration.TestHelpers;
 using Should;
 using Xunit.Extensions;
+using System.Collections.ObjectModel;
 
 namespace CacheItemPolicyConfiguration
 {
@@ -47,8 +49,11 @@ namespace CacheItemPolicyConfiguration
 						new CacheItemPolicyConfigurationItem("TestPolicySlidingWithEnabledAttributeFalse", TimeSpan.MaxValue, false),
 						new CacheItemPolicyConfigurationItem("TestPolicySlidingSetToZeroWithEnabledAttributeTrue", ObjectCache.InfiniteAbsoluteExpiration),
 						new CacheItemPolicyConfigurationItem("TestPolicySlidingSetToSecondsWithEnabledAttributeTrue", TimeSpan.FromSeconds(30)),
-						new CacheItemPolicyConfigurationItem("TestPolicySlidingWithoutEnabledAttribute", TimeSpan.FromMinutes(5))
-					});
+						new CacheItemPolicyConfigurationItem("TestPolicySlidingWithoutEnabledAttribute", TimeSpan.FromMinutes(5)),
+
+                        new CacheItemPolicyConfigurationItem("TestPolicyCacheEntries", new string[] { "aKeyToBeMonitored", "anotherOne", "andSoOn" }),
+                        new CacheItemPolicyConfigurationItem("TestPolicyCacheEntriesEmpty", new string[0])
+                    });
 			}
 			finally
 			{
@@ -198,5 +203,39 @@ namespace CacheItemPolicyConfiguration
 				yield return new object[] { "TestPolicySlidingWithoutEnabledAttribute", TimeSpan.FromMinutes(5), false };
 			}
 		}
-	}
+
+
+        [Theory, PropertyData("CanCreateCacheItemPolicyWithCacheEntriesProgrammaticallyTestData")]
+        public void CanCreateCacheItemPolicyWithCacheEntriesProgrammatically(string cacheItemPolicyName, ReadOnlyCollection<string> cacheEntries, bool monitorShouldBeNull)
+        {
+            // Arrange
+            var expected = cacheEntries;
+            var factory = new CacheItemPolicyFactory(_configuration);
+
+            // Act
+            var cacheItemPolicy = factory.Create(cacheItemPolicyName);
+            var entriesMonitor = cacheItemPolicy.ChangeMonitors.FirstOrDefault() as CacheEntryChangeMonitor;
+
+            // Assert
+            if (monitorShouldBeNull)
+            {
+                entriesMonitor.ShouldBeNull();
+                return;
+            }
+
+            entriesMonitor.ShouldNotBeNull();
+            entriesMonitor.ShouldImplement<CacheEntryChangeMonitor>();
+
+            entriesMonitor.CacheKeys.ShouldEqual(expected);
+        }
+
+        public static IEnumerable<object[]> CanCreateCacheItemPolicyWithCacheEntriesProgrammaticallyTestData
+        {
+            get
+            {
+                yield return new object[] { "TestPolicyCacheEntries", new ReadOnlyCollection<string>(new string[] { "aKeyToBeMonitored", "anotherOne", "andSoOn" }), false };
+                yield return new object[] { "TestPolicyCacheEntriesEmpty", null, true };
+            }
+        }
+    }
 }

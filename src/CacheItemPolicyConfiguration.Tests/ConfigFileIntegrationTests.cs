@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Caching;
 using CacheItemPolicyConfiguration.ConfigFile;
 using CacheItemPolicyConfiguration.TestHelpers;
 using Should;
 using Xunit.Extensions;
+using System.Collections.ObjectModel;
 
 namespace CacheItemPolicyConfiguration
 {
@@ -159,5 +161,40 @@ namespace CacheItemPolicyConfiguration
 				yield return new object[] { "TestPolicySlidingWithoutEnabledAttribute", TimeSpan.FromMinutes(5), false };
 			}
 		}
-	}
+
+
+        [Theory, PropertyData("CanCreateCacheItemPolicyWithCacheEntriesFromDotNetConfigFileTestData")]
+        public void CanCreateCacheItemPolicyWithCacheEntriesFromDotNetConfigFile(string cacheItemPolicyName, ReadOnlyCollection<string> cacheEntries, bool monitorShouldBeNull)
+        {
+            // Arrange
+            var expected = cacheEntries;
+            var config = new ConfigFileBasedCacheItemPolicyConfiguration();
+            var factory = new CacheItemPolicyFactory(config);
+
+            // Act
+            var cacheItemPolicy = factory.Create(cacheItemPolicyName);
+            var entriesMonitor = cacheItemPolicy.ChangeMonitors.FirstOrDefault() as CacheEntryChangeMonitor;
+
+            // Assert
+            if (monitorShouldBeNull)
+            {
+                entriesMonitor.ShouldBeNull();
+                return;
+            }
+
+            entriesMonitor.ShouldNotBeNull();
+            entriesMonitor.ShouldImplement<CacheEntryChangeMonitor>();
+
+            entriesMonitor.CacheKeys.ShouldEqual(expected);
+        }
+
+        public static IEnumerable<object[]> CanCreateCacheItemPolicyWithCacheEntriesFromDotNetConfigFileTestData
+        {
+            get
+            {
+                yield return new object[] { "TestPolicyCacheEntries", new ReadOnlyCollection<string>(new string[] { "aKeyToBeMonitored", "anotherOne", "andSoOn" }), false };
+                yield return new object[] { "TestPolicyCacheEntriesEmpty", null, true };
+            }
+        }
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Configuration;
 
 namespace CacheItemPolicyConfiguration.ConfigFile
@@ -12,12 +14,13 @@ namespace CacheItemPolicyConfiguration.ConfigFile
 		private const string NameAttributeName = "name";
 		private const string AbsoluteExpirationAttributeName = "absoluteExpiration";
 		private const string SlidingExpirationAttributeName = "slidingExpiration";
+        private const string CacheEntriesAttributeNAme = "cacheEntries";
 
-		/// <summary>
-		/// Gets a value indicating whether the item is enabled.
-		/// </summary>
-		/// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
-		[ConfigurationProperty(EnabledAttributeName, DefaultValue = true, IsRequired = false)]
+        /// <summary>
+        /// Gets a value indicating whether the item is enabled.
+        /// </summary>
+        /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
+        [ConfigurationProperty(EnabledAttributeName, DefaultValue = true, IsRequired = false)]
 		public bool Enabled
 		{
 			get { return (bool)this[EnabledAttributeName]; }
@@ -78,5 +81,36 @@ namespace CacheItemPolicyConfiguration.ConfigFile
 		{
 			get { return CacheItemPolicyHelpers.ParseSlidingExpiration(SlidingExpiration); }
 		}
-	}
+
+
+        /// <summary>
+        /// Gets a collection of cache keys that are monitored for changes. See <see cref="System.Runtime.Caching.CacheEntryChangeMonitor"/>.
+        /// </summary>
+        /// <value>
+        /// The cache key to be monitored.
+        /// </value>
+        [ConfigurationProperty(CacheEntriesAttributeNAme, IsRequired = false)]
+        public CacheEntryConfigurationElementCollection CacheEntries
+        {
+            get { return this[CacheEntriesAttributeNAme] as CacheEntryConfigurationElementCollection; }
+        }
+
+        /// <summary>
+        /// Gets a collection of cache keys that are monitored for changes. See <see cref="System.Runtime.Caching.CacheEntryChangeMonitor"/>.
+        /// </summary>
+        /// <value>
+        /// The cache keys to be monitored.
+        /// </value>
+        IEnumerable<string> ICacheItemPolicyConfigurationItem.CacheEntries
+        {
+            get
+            {
+                var entries = CacheEntries;
+                if (entries == null)
+                    return new string[0];
+
+                return entries.Cast<CacheEntryConfigurationElement>().Select(x => x.Key);
+            }
+        }
+    }
 }

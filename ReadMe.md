@@ -34,6 +34,13 @@ In the C# example above, the `cache` variable is an instance of the `System.Runt
 			<cacheItemPolicy name="MyPolicy02" absoluteExpiration="09/15/2073 16:45:00" enabled="true" />
 			<cacheItemPolicy name="MyPolicy03" absoluteExpiration="infinite" enabled="true" />
 			<cacheItemPolicy name="MyPolicy04" slidingExpiration="0.00:20:00" enabled="true" />
+			<cacheItemPolicy name="MyPolicy05" slidingExpiration="0.00:20:00" enabled="true">
+			  <cacheEntries>
+				<cacheEntry key="aKeyToBeMonitored"/>
+				<cacheEntry key="anotherOne"/>
+				<cacheEntry key="andSoOn"/>
+			  </cacheEntries>
+			</cacheItemPolicy>
 		</cacheItemPolicies>
 	</configuration>
 
