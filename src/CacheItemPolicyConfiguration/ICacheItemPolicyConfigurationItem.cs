@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CacheItemPolicyConfiguration
 {
@@ -38,5 +39,13 @@ namespace CacheItemPolicyConfiguration
 		/// The sliding expiration.
 		/// </value>
 		TimeSpan SlidingExpiration { get; }
+
+        /// <summary>
+        /// Gets a collection of cache keys that are monitored for changes. See <see cref="System.Runtime.Caching.CacheEntryChangeMonitor"/>.
+        /// </summary>
+        /// <value>
+        /// The cache keys to be monitored.
+        /// </value>
+        IEnumerable<string> CacheEntries { get; }
 	}
 }

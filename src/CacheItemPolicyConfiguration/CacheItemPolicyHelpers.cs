@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Caching;
 
 namespace CacheItemPolicyConfiguration
@@ -37,6 +38,12 @@ namespace CacheItemPolicyConfiguration
 				// A sliding expiration is configured and will be set in the policy.
 				policy.SlidingExpiration = configurationItem.SlidingExpiration;
 			}
+
+            if (configurationItem.CacheEntries.Any())
+            {
+                var monitor = MemoryCache.Default.CreateCacheEntryChangeMonitor(configurationItem.CacheEntries);
+                policy.ChangeMonitors.Add(monitor);
+            }
 
 			return policy;
 		}

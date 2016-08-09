@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CacheItemPolicyConfiguration
 {
@@ -14,6 +15,20 @@ namespace CacheItemPolicyConfiguration
 		{
 			Enabled = true;
 		}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CacheItemPolicyConfigurationItem"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="cacheEntries">The cache keys to be monitored</param>
+        /// <param name="enabled">if set to <c>true</c> [enabled].</param>
+        public CacheItemPolicyConfigurationItem(string name, IEnumerable<string> cacheEntries, bool enabled = true)
+        {
+            Name = name;
+            CacheEntries = cacheEntries;
+            Enabled = enabled;
+        }
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CacheItemPolicyConfigurationItem"/> class.
@@ -83,5 +98,13 @@ namespace CacheItemPolicyConfiguration
 		/// The sliding expiration.
 		/// </value>
 		public TimeSpan SlidingExpiration { get; set; }
-	}
+
+        /// <summary>
+        /// Gets a collection of cache keys that are monitored for changes. See <see cref="System.Runtime.Caching.CacheEntryChangeMonitor"/>.
+        /// </summary>
+        /// <value>
+        /// The cache keys to be monitored.
+        /// </value>
+        public IEnumerable<string> CacheEntries { get; set; }
+    }
 }
